@@ -5,8 +5,8 @@ const fs = require('fs'),
     xmlReader = require('read-xml'),
     convert = require('xml-js');
 
-const folder = 'C:/Users/oshemesh/Downloads/5.12/';
-const file = 'Berniki_5a12'
+const folder = 'C:\\Users\\oshemesh\\Downloads\\Atsmautlhv\\';
+const file = 'Atsmautlhv'
 
 const theSourceKml = path.join(folder, file+'.kml');
 
@@ -107,23 +107,43 @@ xmlReader.readXML(fs.readFileSync(theSourceKml), function(err, data) {
 
     wallsPolygonArr.forEach(pp => {
         const coordinates = pp.outerBoundaryIs.LinearRing.coordinates._text;
-        wallsPolygonsDataString += `                <Polygon><outerBoundaryIs><LinearRing><coordinates>${coordinates}</coordinates></LinearRing></outerBoundaryIs></Polygon>\n`
+        const arr = coordinates.trim().split("\n").map(p => p.trim());
+        if (isAllItemsEqual(arr)) {
+            console.log(`wallsPolygonArr found all equal: ${coordinates}`)
+        } else {
+            wallsPolygonsDataString += `                <Polygon><outerBoundaryIs><LinearRing><coordinates>${coordinates}</coordinates></LinearRing></outerBoundaryIs></Polygon>\n`
+        }
     })
 
     wallsLineStringArr.forEach(pp => {
-        const coordinates = pp.coordinates._text;
-        wallsLinesDataString += `                <LineString><coordinates>${coordinates}</coordinates></LineString>\n`
+        const coordinates = pp.coordinates._text.trim();
+        const arr = coordinates.split(" ");
+        if (isAllItemsEqual(arr)) {
+            console.log(`wallsLineStringArr found all equal: ${coordinates}`)
+        } else {
+            wallsLinesDataString += `                <LineString><coordinates>${coordinates}</coordinates></LineString>\n`
+        }
     })
 
     splaysStringArr.forEach(pp => {
-        const coordinates = pp.coordinates._text;
-        splaysLinesDataString += `                <LineString><coordinates>${coordinates}</coordinates></LineString>\n`
+        const coordinates = pp.coordinates._text.trim();
+        const arr = coordinates.split(" ");
+        if (isAllItemsEqual(arr)) {
+            console.log(`splaysStringArr found all equal: ${coordinates}`)
+        } else {
+            splaysLinesDataString += `                <LineString><coordinates>${coordinates}</coordinates></LineString>\n`
+        }
     })
 
     centerlineStringArr.forEach(pp => {
-        const coordinates = pp.coordinates._text;
-        const id = pp._attributes.id;
-        centerlineLinesDataString += `                <LineString id="${id}"><coordinates>${coordinates}</coordinates></LineString>\n`
+        const coordinates = pp.coordinates._text.trim();
+        const arr = coordinates.split(" ");
+        if (isAllItemsEqual(arr)) {
+            console.log(`centerlineStringArr found all equal: ${coordinates}`)
+        } else {
+            const id = pp._attributes.id;
+            centerlineLinesDataString += `                <LineString id="${id}"><coordinates>${coordinates}</coordinates></LineString>\n`
+        }
     })
 
     stationsArr.forEach(pp => {
@@ -138,6 +158,10 @@ xmlReader.readXML(fs.readFileSync(theSourceKml), function(err, data) {
         </Placemark>\n`
     })
 });
+
+function isAllItemsEqual(arr) {
+    return arr.every( (val, i, arr) => val === arr[0] )
+}
 
 fs.writeFile(folder+file+'_WallsPolygons.kml', polygonsPre + wallsPolygonsDataString + postMultiGeo, function (err) {
     if (err) throw err;
