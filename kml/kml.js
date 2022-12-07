@@ -1,4 +1,7 @@
 /*
+ qgis labels: replace("name" ,map('B','','@.Berniki_5a', ''))
+
+
 'use strict';
 
 const fs = require('fs'),

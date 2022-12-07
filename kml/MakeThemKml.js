@@ -164,4 +164,3 @@ fs.writeFile(folder+file+'_Stations.kml', stationsPre + stationsDataString + pos
     console.log('_Stations.kml Done!');
 });
 
-/* labels: replace("name" ,map('B','','@.Berniki_5a', '')) */
