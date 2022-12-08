@@ -2,7 +2,6 @@
 
 const fs = require('fs'),
     path = require('path'),
-    xmlReader = require('read-xml'),
     convert = require('xml-js'),
     formatter = require('xml-formatter');
 
@@ -41,63 +40,65 @@ let splaysLinesDataString = '';
 let centerlineLinesDataString = '';
 let stationsDataString = '';
 
-xmlReader.readXML(fs.readFileSync(theSourceKml), function (err, data) {
-    if (err) {
-        console.error(err);
+// starting here
+let kmlRead;
+try {
+    kmlRead = fs.readFileSync(theSourceKml);
+} catch (err) {
+    throw err;
+}
+
+const result = JSON.parse(convert.xml2json(kmlRead, {compact: true, spaces: 4}));
+const wallsPolygonArr = result.kml.Document.Placemark.find(p => p.name._text === 'walls').MultiGeometry.Polygon;
+const wallsLineStringArr = result.kml.Document.Placemark.find(p => p.name._text === 'walls').MultiGeometry.LineString
+const splaysStringArr = result.kml.Document.Placemark.find(p => p.name._text === 'splays').MultiGeometry.LineString
+const centerlineStringArr = result.kml.Document.Placemark.find(p => p.name._text === 'centerline').MultiGeometry.LineString
+const stationsArr = result.kml.Document.Placemark.filter(p => p.styleUrl._text === '#station')
+
+wallsPolygonArr.forEach(pp => {
+    const coordinates = pp.outerBoundaryIs.LinearRing.coordinates._text;
+    const arr = coordinates.trim().split("\n").map(p => p.trim());
+    arr.push(arr[0]); // fix missing closing fourth tuple, should be removed when cave3d fixed.
+    if (isAllItemsEqual(arr)) {
+        console.log(`wallsPolygonArr removed all equal: ${arr}`)
+    } else {
+        wallsPolygonsDataString += `<Polygon><outerBoundaryIs><LinearRing><coordinates>${arr.join("\n")}</coordinates></LinearRing></outerBoundaryIs></Polygon>`
     }
+})
 
-    const xml = data.content;
-    const result = JSON.parse(convert.xml2json(xml, {compact: true, spaces: 4}));
-    const wallsPolygonArr = result.kml.Document.Placemark.find(p => p.name._text === 'walls').MultiGeometry.Polygon;
-    const wallsLineStringArr = result.kml.Document.Placemark.find(p => p.name._text === 'walls').MultiGeometry.LineString
-    const splaysStringArr = result.kml.Document.Placemark.find(p => p.name._text === 'splays').MultiGeometry.LineString
-    const centerlineStringArr = result.kml.Document.Placemark.find(p => p.name._text === 'centerline').MultiGeometry.LineString
-    const stationsArr = result.kml.Document.Placemark.filter(p => p.styleUrl._text === '#station')
+wallsLineStringArr.forEach(pp => {
+    const coordinates = pp.coordinates._text.trim();
+    const arr = coordinates.split(" ");
+    if (isAllItemsEqual(arr)) {
+        console.log(`wallsLineStringArr removed all equal: ${coordinates}`)
+    } else {
+        wallsLinesDataString += `<LineString><coordinates>${coordinates}</coordinates></LineString>`
+    }
+})
 
-    wallsPolygonArr.forEach(pp => {
-        const coordinates = pp.outerBoundaryIs.LinearRing.coordinates._text;
-        const arr = coordinates.trim().split("\n").map(p => p.trim());
-        arr.push(arr[0]); // fix missing closing fourth tuple, should be removed when cave3d fixed.
-        if (isAllItemsEqual(arr)) {
-            console.log(`wallsPolygonArr removed all equal: ${arr}`)
-        } else {
-            wallsPolygonsDataString += `<Polygon><outerBoundaryIs><LinearRing><coordinates>${arr.join("\n")}</coordinates></LinearRing></outerBoundaryIs></Polygon>`
-        }
-    })
+splaysStringArr.forEach(pp => {
+    const coordinates = pp.coordinates._text.trim();
+    const arr = coordinates.split(" ");
+    if (isAllItemsEqual(arr)) {
+        console.log(`splaysStringArr removed all equal: ${coordinates}`)
+    } else {
+        splaysLinesDataString += `<LineString><coordinates>${coordinates}</coordinates></LineString>`
+    }
+})
 
-    wallsLineStringArr.forEach(pp => {
-        const coordinates = pp.coordinates._text.trim();
-        const arr = coordinates.split(" ");
-        if (isAllItemsEqual(arr)) {
-            console.log(`wallsLineStringArr removed all equal: ${coordinates}`)
-        } else {
-            wallsLinesDataString += `<LineString><coordinates>${coordinates}</coordinates></LineString>`
-        }
-    })
+centerlineStringArr.forEach(pp => {
+    const coordinates = pp.coordinates._text.trim();
+    const arr = coordinates.split(" ");
+    if (isAllItemsEqual(arr)) {
+        console.log(`centerlineStringArr removed all equal: ${coordinates}`)
+    } else {
+        const id = pp._attributes.id;
+        centerlineLinesDataString += `<LineString id="${id}"><coordinates>${coordinates}</coordinates></LineString>`
+    }
+})
 
-    splaysStringArr.forEach(pp => {
-        const coordinates = pp.coordinates._text.trim();
-        const arr = coordinates.split(" ");
-        if (isAllItemsEqual(arr)) {
-            console.log(`splaysStringArr removed all equal: ${coordinates}`)
-        } else {
-            splaysLinesDataString += `<LineString><coordinates>${coordinates}</coordinates></LineString>`
-        }
-    })
-
-    centerlineStringArr.forEach(pp => {
-        const coordinates = pp.coordinates._text.trim();
-        const arr = coordinates.split(" ");
-        if (isAllItemsEqual(arr)) {
-            console.log(`centerlineStringArr removed all equal: ${coordinates}`)
-        } else {
-            const id = pp._attributes.id;
-            centerlineLinesDataString += `<LineString id="${id}"><coordinates>${coordinates}</coordinates></LineString>`
-        }
-    })
-
-    stationsArr.forEach(pp => {
-        stationsDataString += `<Placemark>
+stationsArr.forEach(pp => {
+    stationsDataString += `<Placemark>
 <name>${pp.name._text}</name>
 <styleUrl>#station</styleUrl>
 <MultiGeometry>
@@ -105,7 +106,6 @@ xmlReader.readXML(fs.readFileSync(theSourceKml), function (err, data) {
 <coordinates>${pp.MultiGeometry.Point.coordinates._text}</coordinates>
 </Point>
 </MultiGeometry></Placemark>`
-    })
 });
 
 writeToFile('WallsPolygons', prePolygons + wallsPolygonsDataString + postMultiGeo)

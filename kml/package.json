@@ -10,7 +10,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "read-xml": "^3.0.0",
     "xml-js": "^1.6.11",
     "xml-formatter": "^2.6.1"
   }
