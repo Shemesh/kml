@@ -5,7 +5,7 @@ const fs = require('fs'),
     convert = require('xml-js'),
     formatter = require('xml-formatter');
 
-const folder = 'C:\\Users\\oshemesh\\Downloads\\Atsmautlhv\\';
+const folder = 'C:/Users/oshemesh/Downloads/Atsmautlhv';
 const file = 'Atsmautlhv'
 
 const theSourceKml = path.join(folder, file + '.kml');
@@ -123,9 +123,9 @@ function writeToFile(fileName, kmlStr) {
         collapseContent: true,
         lineSeparator: '\n'
     });
-    fs.writeFile(`${folder}${file}_${fileName}.kml`, formatted, function (err) {
+    const fileToWrite = `${folder}/${file}_${fileName}.kml`;
+    fs.writeFile(fileToWrite, formatted, function (err) {
         if (err) throw err;
-        console.log(`${folder}${file}_${fileName}.kml DONE!`);
+        console.log(`file:///${fileToWrite} DONE!`);
     });
 }
-
