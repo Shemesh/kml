@@ -48,7 +48,7 @@ try {
     throw err;
 }
 
-const result = JSON.parse(convert.xml2json(kmlRead, {compact: true, spaces: 4}));
+const result = convert.xml2js(kmlRead, {compact: true, trim: true})
 const wallsPolygonArr = result.kml.Document.Placemark.find(p => p.name._text === 'walls').MultiGeometry.Polygon;
 const wallsLineStringArr = result.kml.Document.Placemark.find(p => p.name._text === 'walls').MultiGeometry.LineString
 const splaysStringArr = result.kml.Document.Placemark.find(p => p.name._text === 'splays').MultiGeometry.LineString
@@ -57,7 +57,7 @@ const stationsArr = result.kml.Document.Placemark.filter(p => p.styleUrl._text =
 
 wallsPolygonArr.forEach(pp => {
     const coordinates = pp.outerBoundaryIs.LinearRing.coordinates._text;
-    const arr = coordinates.trim().split("\n").map(p => p.trim());
+    const arr = coordinates.split("\n").map(p => p.trim());
     arr.push(arr[0]); // fix missing closing fourth tuple, should be removed when cave3d fixed.
     if (isAllItemsEqual(arr)) {
         console.log(`wallsPolygonArr removed all equal: ${arr}`)
@@ -67,7 +67,7 @@ wallsPolygonArr.forEach(pp => {
 })
 
 wallsLineStringArr.forEach(pp => {
-    const coordinates = pp.coordinates._text.trim();
+    const coordinates = pp.coordinates._text;
     const arr = coordinates.split(" ");
     if (isAllItemsEqual(arr)) {
         console.log(`wallsLineStringArr removed all equal: ${coordinates}`)
@@ -77,7 +77,7 @@ wallsLineStringArr.forEach(pp => {
 })
 
 splaysStringArr.forEach(pp => {
-    const coordinates = pp.coordinates._text.trim();
+    const coordinates = pp.coordinates._text;
     const arr = coordinates.split(" ");
     if (isAllItemsEqual(arr)) {
         console.log(`splaysStringArr removed all equal: ${coordinates}`)
@@ -87,7 +87,7 @@ splaysStringArr.forEach(pp => {
 })
 
 centerlineStringArr.forEach(pp => {
-    const coordinates = pp.coordinates._text.trim();
+    const coordinates = pp.coordinates._text;
     const arr = coordinates.split(" ");
     if (isAllItemsEqual(arr)) {
         console.log(`centerlineStringArr removed all equal: ${coordinates}`)
