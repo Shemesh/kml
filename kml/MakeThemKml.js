@@ -4,33 +4,33 @@ const fs = require('fs'),
     path = require('path'),
     xmlReader = require('read-xml'),
     convert = require('xml-js'),
-    format = require('xml-formatter');
+    formatter = require('xml-formatter');
 
 const folder = 'C:\\Users\\oshemesh\\Downloads\\Atsmautlhv\\';
 const file = 'Atsmautlhv'
 
-const theSourceKml = path.join(folder, file+'.kml');
+const theSourceKml = path.join(folder, file + '.kml');
 
 const prePolygons = '<?xml version="1.0" encoding="UTF-8"?><kml xmlnx="http://www.opengis.net/kml/2.2"><Document>' +
-    '<name>'+file+' walls polygons</name>' +
+    '<name>' + file + ' walls polygons</name>' +
     '<Style id="wallsPolygons"><PolyStyle><color>ff51c27b</color></PolyStyle></Style>' +
     '<Placemark><name>walls polygons</name><styleUrl>#wallsPolygons</styleUrl><altitudeMode>absolute</altitudeMode><MultiGeometry>';
 
 const preLines = '<?xml version="1.0" encoding="UTF-8"?><kml xmlnx="http://www.opengis.net/kml/2.2"><Document>' +
-    '<name>'+file+' walls lines</name>' +
+    '<name>' + file + ' walls lines</name>' +
     '<Style id="wallsLines"><PolyStyle><color>ff24b559</color></PolyStyle></Style>' +
     '<Placemark><name>walls lines</name><styleUrl>#wallsLines</styleUrl><altitudeMode>absolute</altitudeMode><MultiGeometry>';
 
 const preSplays = '<?xml version="1.0" encoding="UTF-8"?><kml xmlnx="http://www.opengis.net/kml/2.2"><Document>' +
-    '<name>'+file+' splays</name><Style id="splays"><PolyStyle><color>ff66cccc</color></PolyStyle></Style>' +
+    '<name>' + file + ' splays</name><Style id="splays"><PolyStyle><color>ff66cccc</color></PolyStyle></Style>' +
     '<Placemark><name>splays</name><styleUrl>#splays</styleUrl><altitudeMode>absolute</altitudeMode><MultiGeometry>';
 
 const preCenterline = '<?xml version="1.0" encoding="UTF-8"?><kml xmlnx="http://www.opengis.net/kml/2.2"><Document>' +
-    '<name>'+file+' centerline</name><Style id="centerline"><PolyStyle><color>ff0000ff</color></PolyStyle></Style>' +
+    '<name>' + file + ' centerline</name><Style id="centerline"><PolyStyle><color>ff0000ff</color></PolyStyle></Style>' +
     '<Placemark><name>centerline</name><styleUrl>#centerline</styleUrl><altitudeMode>absolute</altitudeMode><MultiGeometry>';
 
 const preStations = '<?xml version="1.0" encoding="UTF-8"?><kml xmlnx="http://www.opengis.net/kml/2.2"><Document>' +
-    '<name>'+file+' stations</name><Style id="station"><LineStyle><color>ff0000ff</color></LineStyle></Style>'
+    '<name>' + file + ' stations</name><Style id="station"><LineStyle><color>ff0000ff</color></LineStyle></Style>'
 
 const postDoc = '</Document></kml>';
 const postMultiGeo = '</MultiGeometry></Placemark>' + postDoc;
@@ -41,7 +41,7 @@ let splaysLinesDataString = '';
 let centerlineLinesDataString = '';
 let stationsDataString = '';
 
-xmlReader.readXML(fs.readFileSync(theSourceKml), function(err, data) {
+xmlReader.readXML(fs.readFileSync(theSourceKml), function (err, data) {
     if (err) {
         console.error(err);
     }
@@ -115,11 +115,11 @@ writeToFile('Centerline', preCenterline + centerlineLinesDataString + postMultiG
 writeToFile('Stations', preStations + stationsDataString + postDoc)
 
 function isAllItemsEqual(arr) {
-    return arr.every( (val, i, arr) => val === arr[0] )
+    return arr.every((val, i, arr) => val === arr[0])
 }
 
 function writeToFile(fileName, kmlStr) {
-    const formatted = format(kmlStr, {
+    const formatted = formatter(kmlStr, {
         collapseContent: true,
         lineSeparator: '\n'
     });
