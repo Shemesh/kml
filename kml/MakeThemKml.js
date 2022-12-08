@@ -108,8 +108,9 @@ xmlReader.readXML(fs.readFileSync(theSourceKml), function(err, data) {
     wallsPolygonArr.forEach(pp => {
         const coordinates = pp.outerBoundaryIs.LinearRing.coordinates._text;
         const arr = coordinates.trim().split("\n").map(p => p.trim());
+        arr.push(arr[0]); // fix missing closing fourth tuple, should be removed when cave3d fixed.
         if (isAllItemsEqual(arr)) {
-            console.log(`wallsPolygonArr found all equal: ${coordinates}`)
+            console.log(`wallsPolygonArr removed all equal: ${arr}`)
         } else {
             wallsPolygonsDataString += `                <Polygon><outerBoundaryIs><LinearRing><coordinates>${coordinates}</coordinates></LinearRing></outerBoundaryIs></Polygon>\n`
         }
@@ -119,7 +120,7 @@ xmlReader.readXML(fs.readFileSync(theSourceKml), function(err, data) {
         const coordinates = pp.coordinates._text.trim();
         const arr = coordinates.split(" ");
         if (isAllItemsEqual(arr)) {
-            console.log(`wallsLineStringArr found all equal: ${coordinates}`)
+            console.log(`wallsLineStringArr removed all equal: ${coordinates}`)
         } else {
             wallsLinesDataString += `                <LineString><coordinates>${coordinates}</coordinates></LineString>\n`
         }
@@ -129,7 +130,7 @@ xmlReader.readXML(fs.readFileSync(theSourceKml), function(err, data) {
         const coordinates = pp.coordinates._text.trim();
         const arr = coordinates.split(" ");
         if (isAllItemsEqual(arr)) {
-            console.log(`splaysStringArr found all equal: ${coordinates}`)
+            console.log(`splaysStringArr removed all equal: ${coordinates}`)
         } else {
             splaysLinesDataString += `                <LineString><coordinates>${coordinates}</coordinates></LineString>\n`
         }
@@ -139,7 +140,7 @@ xmlReader.readXML(fs.readFileSync(theSourceKml), function(err, data) {
         const coordinates = pp.coordinates._text.trim();
         const arr = coordinates.split(" ");
         if (isAllItemsEqual(arr)) {
-            console.log(`centerlineStringArr found all equal: ${coordinates}`)
+            console.log(`centerlineStringArr removed all equal: ${coordinates}`)
         } else {
             const id = pp._attributes.id;
             centerlineLinesDataString += `                <LineString id="${id}"><coordinates>${coordinates}</coordinates></LineString>\n`
