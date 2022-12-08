@@ -3,88 +3,37 @@
 const fs = require('fs'),
     path = require('path'),
     xmlReader = require('read-xml'),
-    convert = require('xml-js');
+    convert = require('xml-js'),
+    format = require('xml-formatter');
 
 const folder = 'C:\\Users\\oshemesh\\Downloads\\Atsmautlhv\\';
 const file = 'Atsmautlhv'
 
 const theSourceKml = path.join(folder, file+'.kml');
 
-const polygonsPre = '<?xml version="1.0" encoding="UTF-8"?>\n' +
-    '<kml xmlnx="http://www.opengis.net/kml/2.2">\n' +
-    '    <Document>\n' +
-    '        <name>'+file+' walls polygons</name>\n' +
-    '        <Style id="wallsPolygons">\n' +
-    '            <PolyStyle>\n' +
-    '                <color>ff51c27b</color>\n' +
-    '            </PolyStyle>\n' +
-    '        </Style>\n' +
-    '        <Placemark>\n' +
-    '            <name>walls polygons</name>\n' +
-    '            <styleUrl>#wallsPolygons</styleUrl>\n' +
-    '            <altitudeMode>absolute</altitudeMode>\n' +
-    '            <MultiGeometry>\n';
+const prePolygons = '<?xml version="1.0" encoding="UTF-8"?><kml xmlnx="http://www.opengis.net/kml/2.2"><Document>' +
+    '<name>'+file+' walls polygons</name>' +
+    '<Style id="wallsPolygons"><PolyStyle><color>ff51c27b</color></PolyStyle></Style>' +
+    '<Placemark><name>walls polygons</name><styleUrl>#wallsPolygons</styleUrl><altitudeMode>absolute</altitudeMode><MultiGeometry>';
 
-const linesPre = '<?xml version="1.0" encoding="UTF-8"?>\n' +
-    '<kml xmlnx="http://www.opengis.net/kml/2.2">\n' +
-    '    <Document>\n' +
-    '        <name>'+file+' walls lines</name>\n' +
-    '        <Style id="wallsLines">\n' +
-    '            <PolyStyle>\n' +
-    '                <color>ff24b559</color>\n' +
-    '            </PolyStyle>\n' +
-    '        </Style>\n' +
-    '        <Placemark>\n' +
-    '            <name>walls lines</name>\n' +
-    '            <styleUrl>#wallsLines</styleUrl>\n' +
-    '            <altitudeMode>absolute</altitudeMode>\n' +
-    '            <MultiGeometry>\n';
+const preLines = '<?xml version="1.0" encoding="UTF-8"?><kml xmlnx="http://www.opengis.net/kml/2.2"><Document>' +
+    '<name>'+file+' walls lines</name>' +
+    '<Style id="wallsLines"><PolyStyle><color>ff24b559</color></PolyStyle></Style>' +
+    '<Placemark><name>walls lines</name><styleUrl>#wallsLines</styleUrl><altitudeMode>absolute</altitudeMode><MultiGeometry>';
 
-const splaysPre = '<?xml version="1.0" encoding="UTF-8"?>\n' +
-    '<kml xmlnx="http://www.opengis.net/kml/2.2">\n' +
-    '    <Document>\n' +
-    '        <name>'+file+' splays</name>\n' +
-    '        <Style id="splays">\n' +
-    '            <PolyStyle>\n' +
-    '                <color>ff66cccc</color>\n' +
-    '            </PolyStyle>\n' +
-    '        </Style>\n' +
-    '        <Placemark>\n' +
-    '            <name>splays</name>\n' +
-    '            <styleUrl>#splays</styleUrl>\n' +
-    '            <altitudeMode>absolute</altitudeMode>\n' +
-    '            <MultiGeometry>\n';
+const preSplays = '<?xml version="1.0" encoding="UTF-8"?><kml xmlnx="http://www.opengis.net/kml/2.2"><Document>' +
+    '<name>'+file+' splays</name><Style id="splays"><PolyStyle><color>ff66cccc</color></PolyStyle></Style>' +
+    '<Placemark><name>splays</name><styleUrl>#splays</styleUrl><altitudeMode>absolute</altitudeMode><MultiGeometry>';
 
-const centerlinePre = '<?xml version="1.0" encoding="UTF-8"?>\n' +
-    '<kml xmlnx="http://www.opengis.net/kml/2.2">\n' +
-    '    <Document>\n' +
-    '        <name>'+file+' centerline</name>\n' +
-    '        <Style id="centerline">\n' +
-    '            <PolyStyle>\n' +
-    '                <color>ff0000ff</color>\n' +
-    '            </PolyStyle>\n' +
-    '        </Style>\n' +
-    '        <Placemark>\n' +
-    '            <name>centerline</name>\n' +
-    '            <styleUrl>#centerline</styleUrl>\n' +
-    '            <altitudeMode>absolute</altitudeMode>\n' +
-    '            <MultiGeometry>\n';
+const preCenterline = '<?xml version="1.0" encoding="UTF-8"?><kml xmlnx="http://www.opengis.net/kml/2.2"><Document>' +
+    '<name>'+file+' centerline</name><Style id="centerline"><PolyStyle><color>ff0000ff</color></PolyStyle></Style>' +
+    '<Placemark><name>centerline</name><styleUrl>#centerline</styleUrl><altitudeMode>absolute</altitudeMode><MultiGeometry>';
 
-const stationsPre = '<?xml version="1.0" encoding="UTF-8"?>\n' +
-    '<kml xmlnx="http://www.opengis.net/kml/2.2">\n' +
-    '    <Document>\n' +
-    '        <name>'+file+' stations</name>\n' +
-    '        <Style id="station">\n' +
-    '            <LineStyle>\n' +
-    '                <color>ff0000ff</color>\n' +
-    '            </LineStyle>\n' +
-    '        </Style>\n'
+const preStations = '<?xml version="1.0" encoding="UTF-8"?><kml xmlnx="http://www.opengis.net/kml/2.2"><Document>' +
+    '<name>'+file+' stations</name><Style id="station"><LineStyle><color>ff0000ff</color></LineStyle></Style>'
 
-const postDoc = '    </Document>\n' +
-    '</kml>';
-
-const postMultiGeo = '            </MultiGeometry>\n' +
-    '        </Placemark>\n' + postDoc;
+const postDoc = '</Document></kml>';
+const postMultiGeo = '</MultiGeometry></Placemark>' + postDoc;
 
 let wallsPolygonsDataString = '';
 let wallsLinesDataString = '';
@@ -112,7 +61,7 @@ xmlReader.readXML(fs.readFileSync(theSourceKml), function(err, data) {
         if (isAllItemsEqual(arr)) {
             console.log(`wallsPolygonArr removed all equal: ${arr}`)
         } else {
-            wallsPolygonsDataString += `                <Polygon><outerBoundaryIs><LinearRing><coordinates>${coordinates}</coordinates></LinearRing></outerBoundaryIs></Polygon>\n`
+            wallsPolygonsDataString += `<Polygon><outerBoundaryIs><LinearRing><coordinates>${arr.join("\n")}</coordinates></LinearRing></outerBoundaryIs></Polygon>`
         }
     })
 
@@ -122,7 +71,7 @@ xmlReader.readXML(fs.readFileSync(theSourceKml), function(err, data) {
         if (isAllItemsEqual(arr)) {
             console.log(`wallsLineStringArr removed all equal: ${coordinates}`)
         } else {
-            wallsLinesDataString += `                <LineString><coordinates>${coordinates}</coordinates></LineString>\n`
+            wallsLinesDataString += `<LineString><coordinates>${coordinates}</coordinates></LineString>`
         }
     })
 
@@ -132,7 +81,7 @@ xmlReader.readXML(fs.readFileSync(theSourceKml), function(err, data) {
         if (isAllItemsEqual(arr)) {
             console.log(`splaysStringArr removed all equal: ${coordinates}`)
         } else {
-            splaysLinesDataString += `                <LineString><coordinates>${coordinates}</coordinates></LineString>\n`
+            splaysLinesDataString += `<LineString><coordinates>${coordinates}</coordinates></LineString>`
         }
     })
 
@@ -143,49 +92,40 @@ xmlReader.readXML(fs.readFileSync(theSourceKml), function(err, data) {
             console.log(`centerlineStringArr removed all equal: ${coordinates}`)
         } else {
             const id = pp._attributes.id;
-            centerlineLinesDataString += `                <LineString id="${id}"><coordinates>${coordinates}</coordinates></LineString>\n`
+            centerlineLinesDataString += `<LineString id="${id}"><coordinates>${coordinates}</coordinates></LineString>`
         }
     })
 
     stationsArr.forEach(pp => {
-        stationsDataString += `        <Placemark>
-            <name>${pp.name._text}</name>
-            <styleUrl>#station</styleUrl>
-            <MultiGeometry>
-                <Point id="${pp.MultiGeometry.Point._attributes.id}">
-                    <coordinates>${pp.MultiGeometry.Point.coordinates._text}</coordinates>
-                </Point>
-            </MultiGeometry>
-        </Placemark>\n`
+        stationsDataString += `<Placemark>
+<name>${pp.name._text}</name>
+<styleUrl>#station</styleUrl>
+<MultiGeometry>
+<Point id="${pp.MultiGeometry.Point._attributes.id}">
+<coordinates>${pp.MultiGeometry.Point.coordinates._text}</coordinates>
+</Point>
+</MultiGeometry></Placemark>`
     })
 });
+
+writeToFile('WallsPolygons', prePolygons + wallsPolygonsDataString + postMultiGeo)
+writeToFile('WallsLines', preLines + wallsLinesDataString + postMultiGeo)
+writeToFile('Splays', preSplays + splaysLinesDataString + postMultiGeo)
+writeToFile('Centerline', preCenterline + centerlineLinesDataString + postMultiGeo)
+writeToFile('Stations', preStations + stationsDataString + postDoc)
 
 function isAllItemsEqual(arr) {
     return arr.every( (val, i, arr) => val === arr[0] )
 }
 
-fs.writeFile(folder+file+'_WallsPolygons.kml', polygonsPre + wallsPolygonsDataString + postMultiGeo, function (err) {
-    if (err) throw err;
-    console.log('_WallsPolygons.kml Done!');
-});
-
-fs.writeFile(folder+file+'_WallsLines.kml', linesPre + wallsLinesDataString + postMultiGeo, function (err) {
-    if (err) throw err;
-    console.log('_WallsLines.kml Done!');
-});
-
-fs.writeFile(folder+file+'_Splays.kml', splaysPre + splaysLinesDataString + postMultiGeo, function (err) {
-    if (err) throw err;
-    console.log('_Splays.kml Done!');
-});
-
-fs.writeFile(folder+file+'_Centerline.kml', centerlinePre + centerlineLinesDataString + postMultiGeo, function (err) {
-    if (err) throw err;
-    console.log('_Centerline.kml Done!');
-});
-
-fs.writeFile(folder+file+'_Stations.kml', stationsPre + stationsDataString + postDoc, function (err) {
-    if (err) throw err;
-    console.log('_Stations.kml Done!');
-});
+function writeToFile(fileName, kmlStr) {
+    const formatted = format(kmlStr, {
+        collapseContent: true,
+        lineSeparator: '\n'
+    });
+    fs.writeFile(`${folder}${file}_${fileName}.kml`, formatted, function (err) {
+        if (err) throw err;
+        console.log(`${folder}${file}_${fileName}.kml DONE!`);
+    });
+}
 
