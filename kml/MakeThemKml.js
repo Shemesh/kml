@@ -3,10 +3,16 @@
 const fs = require('fs'),
     path = require('path'),
     convert = require('xml-js'),
-    formatter = require('xml-formatter');
+    formatter = require('xml-formatter'),
+    archiver = require('archiver');
 
-const folder = 'C:/Users/oshemesh/Downloads/Atsmautlhv';
+// var readline = require('readline-sync');
+// var poipoi = readline.question("Enter file name/path: ");
+// console.log("Entered path : " + poipoi);
+
+const folder = 'C:/Users/oshemesh/Downloads/12.12';
 const file = 'Atsmautlhv'
+const folderForKml = `${folder}/KMLs`;
 
 const theSourceKml = path.join(folder, file + '.kml');
 
@@ -30,6 +36,15 @@ const preCenterline = '<?xml version="1.0" encoding="UTF-8"?><kml xmlnx="http://
 
 const preStations = '<?xml version="1.0" encoding="UTF-8"?><kml xmlnx="http://www.opengis.net/kml/2.2"><Document>' +
     '<name>' + file + ' stations</name><Style id="station"><LineStyle><color>ff0000ff</color></LineStyle></Style>'
+
+const docKml = '<?xml version="1.0" encoding="UTF-8"?><kml xmlnx="http://www.opengis.net/kml/2.2"><Folder>' +
+    '<name>' + file + '</name><open>1</open>' +
+    '<NetworkLink><name>' + file + ' Centerline</name><Link><href>KMLs/' + file + '_Centerline.kml</href></Link></NetworkLink>' +
+    '<NetworkLink><name>' + file + ' Splays</name><Link><href>KMLs/' + file + '_Splays.kml</href></Link></NetworkLink>' +
+    '<NetworkLink><name>' + file + ' Stations</name><Link><href>KMLs/' + file + '_Stations.kml</href></Link></NetworkLink>' +
+    '<NetworkLink><name>' + file + ' Walls Lines</name><Link><href>KMLs/' + file + '_WallsLines.kml</href></Link></NetworkLink>' +
+    '<NetworkLink><name>' + file + ' Walls Polygons</name><Link><href>KMLs/' + file + '_WallsPolygons.kml</href></Link></NetworkLink>' +
+    '</Folder></kml>'
 
 const postDoc = '</Document></kml>';
 const postMultiGeo = '</MultiGeometry></Placemark>' + postDoc;
@@ -114,6 +129,8 @@ writeToFile('Splays', preSplays + splaysLinesDataString + postMultiGeo)
 writeToFile('Centerline', preCenterline + centerlineLinesDataString + postMultiGeo)
 writeToFile('Stations', preStations + stationsDataString + postDoc)
 
+createKmz();
+
 function isAllItemsEqual(arr) {
     return arr.every((val, i, arr) => val === arr[0])
 }
@@ -123,9 +140,40 @@ function writeToFile(fileName, kmlStr) {
         collapseContent: true,
         lineSeparator: '\n'
     });
-    const fileToWrite = `${folder}/${file}_${fileName}.kml`;
-    fs.writeFile(fileToWrite, formatted, function (err) {
-        if (err) throw err;
+    const fileToWrite = `${folderForKml}/${file}_${fileName}.kml`;
+    if (!fs.existsSync(folderForKml)) {
+        fs.mkdirSync(folderForKml, { recursive: true});
+    }
+    try {
+        fs.writeFileSync(fileToWrite, formatted);
         console.log(`file:///${fileToWrite} DONE!`);
+    } catch (err) {
+        throw err;
+    }
+
+}
+
+function createKmz() {
+    const output = fs.createWriteStream(`${folder}/${file}.kmz`);
+    const archive = archiver('zip', {zlib: {level: 9}});
+
+    output.on('close', function () {
+        console.log(`KMZ file:///${folder}/${file}.kmz DONE!`);
     });
+
+    archive.on('warning', function (err) {
+        throw err;
+    });
+
+    archive.on('error', function (err) {
+        throw err;
+    });
+
+    archive.pipe(output);
+
+    archive.append(formatter(docKml, {collapseContent: true, lineSeparator: '\n'}), {name: 'doc.kml'});
+
+    archive.directory(folderForKml, 'KMLs');
+
+    archive.finalize();
 }

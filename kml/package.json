@@ -10,7 +10,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "xml-js": "^1.6.11",
-    "xml-formatter": "^2.6.1"
+    "archiver": "^5.3.1",
+    "readline-sync": "^1.4.10",
+    "xml-formatter": "^2.6.1",
+    "xml-js": "^1.6.11"
   }
 }
