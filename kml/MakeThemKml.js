@@ -6,10 +6,6 @@ const fs = require('fs'),
     formatter = require('xml-formatter'),
     archiver = require('archiver');
 
-// var readline = require('readline-sync');
-// var poipoi = readline.question("Enter file name/path: ");
-// console.log("Entered path : " + poipoi);
-
 const folder = 'C:/Users/oshemesh/Downloads/12.12';
 const file = 'Atsmautlhv'
 const folderForKml = `${folder}/KMLs`;
