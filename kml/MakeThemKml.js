@@ -4,42 +4,44 @@ const fs = require('fs'),
     path = require('path'),
     convert = require('xml-js'),
     formatter = require('xml-formatter'),
+    prompt = require("prompt-sync")({ sigint: true }),
     archiver = require('archiver');
 
-const folder = 'C:/Users/oshemesh/Downloads/12.12';
-const file = 'Atsmautlhv'
+const theSourceKml = prompt("enter path to the source KML (example C:/Users/Downloads/cave.kml) : ");
+console.log(`theSourceKml = ${theSourceKml}`);
+
+const folder = path.dirname(theSourceKml);
+const fileName = path.basename(theSourceKml, '.kml');
 const folderForKml = `${folder}/KMLs`;
 
-const theSourceKml = path.join(folder, file + '.kml');
-
 const prePolygons = '<?xml version="1.0" encoding="UTF-8"?><kml xmlnx="http://www.opengis.net/kml/2.2"><Document>' +
-    '<name>' + file + ' walls polygons</name>' +
+    '<name>' + fileName + ' walls polygons</name>' +
     '<Style id="wallsPolygons"><PolyStyle><color>ff51c27b</color></PolyStyle></Style>' +
     '<Placemark><name>walls polygons</name><styleUrl>#wallsPolygons</styleUrl><altitudeMode>absolute</altitudeMode><MultiGeometry>';
 
 const preLines = '<?xml version="1.0" encoding="UTF-8"?><kml xmlnx="http://www.opengis.net/kml/2.2"><Document>' +
-    '<name>' + file + ' walls lines</name>' +
+    '<name>' + fileName + ' walls lines</name>' +
     '<Style id="wallsLines"><PolyStyle><color>ff24b559</color></PolyStyle></Style>' +
     '<Placemark><name>walls lines</name><styleUrl>#wallsLines</styleUrl><altitudeMode>absolute</altitudeMode><MultiGeometry>';
 
 const preSplays = '<?xml version="1.0" encoding="UTF-8"?><kml xmlnx="http://www.opengis.net/kml/2.2"><Document>' +
-    '<name>' + file + ' splays</name><Style id="splays"><PolyStyle><color>ff66cccc</color></PolyStyle></Style>' +
+    '<name>' + fileName + ' splays</name><Style id="splays"><PolyStyle><color>ff66cccc</color></PolyStyle></Style>' +
     '<Placemark><name>splays</name><styleUrl>#splays</styleUrl><altitudeMode>absolute</altitudeMode><MultiGeometry>';
 
 const preCenterline = '<?xml version="1.0" encoding="UTF-8"?><kml xmlnx="http://www.opengis.net/kml/2.2"><Document>' +
-    '<name>' + file + ' centerline</name><Style id="centerline"><PolyStyle><color>ff0000ff</color></PolyStyle></Style>' +
+    '<name>' + fileName + ' centerline</name><Style id="centerline"><PolyStyle><color>ff0000ff</color></PolyStyle></Style>' +
     '<Placemark><name>centerline</name><styleUrl>#centerline</styleUrl><altitudeMode>absolute</altitudeMode><MultiGeometry>';
 
 const preStations = '<?xml version="1.0" encoding="UTF-8"?><kml xmlnx="http://www.opengis.net/kml/2.2"><Document>' +
-    '<name>' + file + ' stations</name><Style id="station"><LineStyle><color>ff0000ff</color></LineStyle></Style>'
+    '<name>' + fileName + ' stations</name><Style id="station"><LineStyle><color>ff0000ff</color></LineStyle></Style>'
 
 const docKml = '<?xml version="1.0" encoding="UTF-8"?><kml xmlnx="http://www.opengis.net/kml/2.2"><Folder>' +
-    '<name>' + file + '</name><open>1</open>' +
-    '<NetworkLink><name>' + file + ' Centerline</name><Link><href>KMLs/' + file + '_Centerline.kml</href></Link></NetworkLink>' +
-    '<NetworkLink><name>' + file + ' Splays</name><Link><href>KMLs/' + file + '_Splays.kml</href></Link></NetworkLink>' +
-    '<NetworkLink><name>' + file + ' Stations</name><Link><href>KMLs/' + file + '_Stations.kml</href></Link></NetworkLink>' +
-    '<NetworkLink><name>' + file + ' Walls Lines</name><Link><href>KMLs/' + file + '_WallsLines.kml</href></Link></NetworkLink>' +
-    '<NetworkLink><name>' + file + ' Walls Polygons</name><Link><href>KMLs/' + file + '_WallsPolygons.kml</href></Link></NetworkLink>' +
+    '<name>' + fileName + '</name><open>1</open>' +
+    '<NetworkLink><name>' + fileName + ' Centerline</name><Link><href>KMLs/' + fileName + '_Centerline.kml</href></Link></NetworkLink>' +
+    '<NetworkLink><name>' + fileName + ' Splays</name><Link><href>KMLs/' + fileName + '_Splays.kml</href></Link></NetworkLink>' +
+    '<NetworkLink><name>' + fileName + ' Stations</name><Link><href>KMLs/' + fileName + '_Stations.kml</href></Link></NetworkLink>' +
+    '<NetworkLink><name>' + fileName + ' Walls Lines</name><Link><href>KMLs/' + fileName + '_WallsLines.kml</href></Link></NetworkLink>' +
+    '<NetworkLink><name>' + fileName + ' Walls Polygons</name><Link><href>KMLs/' + fileName + '_WallsPolygons.kml</href></Link></NetworkLink>' +
     '</Folder></kml>'
 
 const postDoc = '</Document></kml>';
@@ -131,12 +133,12 @@ function isAllItemsEqual(arr) {
     return arr.every((val, i, arr) => val === arr[0])
 }
 
-function writeToFile(fileName, kmlStr) {
+function writeToFile(partName, kmlStr) {
     const formatted = formatter(kmlStr, {
         collapseContent: true,
         lineSeparator: '\n'
     });
-    const fileToWrite = `${folderForKml}/${file}_${fileName}.kml`;
+    const fileToWrite = `${folderForKml}/${fileName}_${partName}.kml`;
     if (!fs.existsSync(folderForKml)) {
         fs.mkdirSync(folderForKml, { recursive: true});
     }
@@ -146,15 +148,14 @@ function writeToFile(fileName, kmlStr) {
     } catch (err) {
         throw err;
     }
-
 }
 
 function createKmz() {
-    const output = fs.createWriteStream(`${folder}/${file}.kmz`);
+    const output = fs.createWriteStream(`${folder}/${fileName}.kmz`);
     const archive = archiver('zip', {zlib: {level: 9}});
 
     output.on('close', function () {
-        console.log(`KMZ file:///${folder}/${file}.kmz DONE!`);
+        console.log(`KMZ file:///${folder}/${fileName}.kmz DONE!`);
     });
 
     archive.on('warning', function (err) {
@@ -166,10 +167,7 @@ function createKmz() {
     });
 
     archive.pipe(output);
-
     archive.append(formatter(docKml, {collapseContent: true, lineSeparator: '\n'}), {name: 'doc.kml'});
-
     archive.directory(folderForKml, 'KMLs');
-
     archive.finalize();
 }
