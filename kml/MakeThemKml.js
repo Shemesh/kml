@@ -7,7 +7,8 @@ const fs = require('fs'),
     prompt = require("prompt-sync")({ sigint: true }),
     archiver = require('archiver');
 
-const theSourceKml = prompt("enter path to the source KML (example C:/Users/Downloads/cave.kml) : ");
+// const theSourceKml = prompt("enter path to the source KML (example C:/Users/Downloads/cave.kml) : ");
+const theSourceKml = 'C:/Users/oshemesh/Downloads/12.12/Atsmautlhv.kml';
 console.log(`theSourceKml = ${theSourceKml}`);
 
 const folder = path.dirname(theSourceKml);
@@ -16,30 +17,30 @@ const folderForKml = `${folder}/KMLs`;
 
 const prePolygons = '<?xml version="1.0" encoding="UTF-8"?><kml xmlnx="http://www.opengis.net/kml/2.2"><Document>' +
     '<name>' + fileName + ' walls polygons</name>' +
-    '<Style id="wallsPolygons"><PolyStyle><color>ff51c27b</color></PolyStyle></Style>' +
+    '<Style id="wallsPolygons"><PolyStyle><color>ff51c27b</color><outline>0</outline></PolyStyle></Style>' +
     '<Placemark><name>walls polygons</name><styleUrl>#wallsPolygons</styleUrl><altitudeMode>absolute</altitudeMode><MultiGeometry>';
 
 const preLines = '<?xml version="1.0" encoding="UTF-8"?><kml xmlnx="http://www.opengis.net/kml/2.2"><Document>' +
     '<name>' + fileName + ' walls lines</name>' +
-    '<Style id="wallsLines"><PolyStyle><color>ff24b559</color></PolyStyle></Style>' +
+    '<Style id="wallsLines"><LineStyle><color>ff45a864</color></LineStyle></Style>' +
     '<Placemark><name>walls lines</name><styleUrl>#wallsLines</styleUrl><altitudeMode>absolute</altitudeMode><MultiGeometry>';
 
 const preSplays = '<?xml version="1.0" encoding="UTF-8"?><kml xmlnx="http://www.opengis.net/kml/2.2"><Document>' +
-    '<name>' + fileName + ' splays</name><Style id="splays"><PolyStyle><color>ff66cccc</color></PolyStyle></Style>' +
+    '<name>' + fileName + ' splays</name><Style id="splays"><LineStyle><color>ffe1e1e1</color></LineStyle></Style>' +
     '<Placemark><name>splays</name><styleUrl>#splays</styleUrl><altitudeMode>absolute</altitudeMode><MultiGeometry>';
 
 const preCenterline = '<?xml version="1.0" encoding="UTF-8"?><kml xmlnx="http://www.opengis.net/kml/2.2"><Document>' +
-    '<name>' + fileName + ' centerline</name><Style id="centerline"><PolyStyle><color>ff0000ff</color></PolyStyle></Style>' +
+    '<name>' + fileName + ' centerline</name><Style id="centerline"><LineStyle><color>ff000000</color></LineStyle></Style>' +
     '<Placemark><name>centerline</name><styleUrl>#centerline</styleUrl><altitudeMode>absolute</altitudeMode><MultiGeometry>';
 
 const preStations = '<?xml version="1.0" encoding="UTF-8"?><kml xmlnx="http://www.opengis.net/kml/2.2"><Document>' +
-    '<name>' + fileName + ' stations</name><Style id="station"><LineStyle><color>ff0000ff</color></LineStyle></Style>'
+    '<name>' + fileName + ' stations</name><Style id="station"><LabelStyle><scale>0.7</scale></LabelStyle></Style>'
 
 const docKml = '<?xml version="1.0" encoding="UTF-8"?><kml xmlnx="http://www.opengis.net/kml/2.2"><Folder>' +
     '<name>' + fileName + '</name><open>1</open>' +
     '<NetworkLink><name>' + fileName + ' Centerline</name><Link><href>KMLs/' + fileName + '_Centerline.kml</href></Link></NetworkLink>' +
-    '<NetworkLink><name>' + fileName + ' Splays</name><Link><href>KMLs/' + fileName + '_Splays.kml</href></Link></NetworkLink>' +
-    '<NetworkLink><name>' + fileName + ' Stations</name><Link><href>KMLs/' + fileName + '_Stations.kml</href></Link></NetworkLink>' +
+    '<NetworkLink><name>' + fileName + ' Splays</name><visibility>0</visibility><Link><href>KMLs/' + fileName + '_Splays.kml</href></Link></NetworkLink>' +
+    '<NetworkLink><name>' + fileName + ' Stations</name><visibility>0</visibility><Link><href>KMLs/' + fileName + '_Stations.kml</href></Link></NetworkLink>' +
     '<NetworkLink><name>' + fileName + ' Walls Lines</name><Link><href>KMLs/' + fileName + '_WallsLines.kml</href></Link></NetworkLink>' +
     '<NetworkLink><name>' + fileName + ' Walls Polygons</name><Link><href>KMLs/' + fileName + '_WallsPolygons.kml</href></Link></NetworkLink>' +
     '</Folder></kml>'
