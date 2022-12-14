@@ -1,7 +1,8 @@
 {
   "name": "kml",
   "version": "1.0.0",
-  "description": "",
+  "description": "from cave3d split to separated KML and make KMZ",
+  "private": true,
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
