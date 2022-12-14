@@ -115,11 +115,9 @@ stationsArr.forEach(pp => {
     stationsDataString += `<Placemark>
 <name>${pp.name._text}</name>
 <styleUrl>#station</styleUrl>
-<MultiGeometry>
 <Point id="${pp.MultiGeometry.Point._attributes.id}">
 <coordinates>${pp.MultiGeometry.Point.coordinates._text}</coordinates>
-</Point>
-</MultiGeometry></Placemark>`
+</Point></Placemark>`
 });
 
 writeToFile('WallsPolygons', prePolygons + wallsPolygonsDataString + postMultiGeo)
