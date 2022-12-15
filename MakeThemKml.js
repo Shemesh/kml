@@ -7,8 +7,7 @@ const fs = require('fs'),
     prompt = require("prompt-sync")({ sigint: true }),
     archiver = require('archiver');
 
-// const theSourceKml = prompt("enter path to the source KML (example C:/Users/Downloads/cave.kml) : ");
-const theSourceKml = 'C:/Users/oshemesh/Downloads/12.12/Atsmautlhv.kml';
+const theSourceKml = prompt("enter path to the source KML (example C:/Users/Downloads/cave.kml) : ");
 console.log(`theSourceKml = ${theSourceKml}`);
 
 const folder = path.dirname(theSourceKml);
