@@ -71,7 +71,7 @@ const stationsArr = result.kml.Document.Placemark.filter(p => p.styleUrl._text =
 wallsPolygonArr.forEach(pp => {
     const coordinates = pp.outerBoundaryIs.LinearRing.coordinates._text;
     const arr = coordinates.split("\n").map(p => p.trim());
-    arr.push(arr[0]); // fix missing closing fourth tuple, should be removed when cave3d fixed.
+    // arr.push(arr[0]); // fix missing closing fourth tuple, should be removed when cave3d fixed.
     if (isAllItemsEqual(arr)) {
         console.log(`wallsPolygonArr removed all equal: ${arr}`)
     } else {
