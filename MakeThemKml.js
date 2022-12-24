@@ -8,6 +8,7 @@ const fs = require('fs'),
     archiver = require('archiver');
 
 const theSourceKml = prompt("enter path to the source KML (example C:/Users/Downloads/cave.kml) : ");
+const fixedStation = prompt("fixed station is : ");
 console.log(`theSourceKml = ${theSourceKml}`);
 
 const folder = path.dirname(theSourceKml);
@@ -35,6 +36,9 @@ const preCenterline = '<?xml version="1.0" encoding="UTF-8"?><kml xmlnx="http://
 const preStations = '<?xml version="1.0" encoding="UTF-8"?><kml xmlnx="http://www.opengis.net/kml/2.2"><Document>' +
     '<name>' + fileName + ' stations</name><Style id="station"><LabelStyle><scale>0.7</scale></LabelStyle></Style>'
 
+const preFixedStation = '<?xml version="1.0" encoding="UTF-8"?><kml xmlnx="http://www.opengis.net/kml/2.2"><Document>' +
+    '<name>' + fileName + ' fixed station</name><Style id="station"><LabelStyle><scale>0.7</scale></LabelStyle></Style>'
+
 const docKml = '<?xml version="1.0" encoding="UTF-8"?><kml xmlnx="http://www.opengis.net/kml/2.2"><Folder>' +
     '<name>' + fileName + '</name><open>1</open>' +
     '<NetworkLink><name>' + fileName + ' Centerline</name><Link><href>KMLs/' + fileName + '_Centerline.kml</href></Link></NetworkLink>' +
@@ -42,6 +46,7 @@ const docKml = '<?xml version="1.0" encoding="UTF-8"?><kml xmlnx="http://www.ope
     '<NetworkLink><name>' + fileName + ' Stations</name><visibility>0</visibility><Link><href>KMLs/' + fileName + '_Stations.kml</href></Link></NetworkLink>' +
     '<NetworkLink><name>' + fileName + ' Walls Lines</name><Link><href>KMLs/' + fileName + '_WallsLines.kml</href></Link></NetworkLink>' +
     '<NetworkLink><name>' + fileName + ' Walls Polygons</name><Link><href>KMLs/' + fileName + '_WallsPolygons.kml</href></Link></NetworkLink>' +
+    '<NetworkLink><name>' + fileName + ' Fixed Station</name><Link><href>KMLs/' + fileName + '_FixedStation.kml</href></Link></NetworkLink>' +
     '</Folder></kml>'
 
 const postDoc = '</Document></kml>';
@@ -52,6 +57,7 @@ let wallsLinesDataString = '';
 let splaysLinesDataString = '';
 let centerlineLinesDataString = '';
 let stationsDataString = '';
+let fixedStationDataString = '';
 
 // starting here
 let kmlRead;
@@ -111,12 +117,16 @@ centerlineStringArr.forEach(pp => {
 })
 
 stationsArr.forEach(pp => {
-    stationsDataString += `<Placemark>
+    const station = `<Placemark>
 <name>${pp.name._text}</name>
 <styleUrl>#station</styleUrl>
 <Point id="${pp.MultiGeometry.Point._attributes.id}">
 <coordinates>${pp.MultiGeometry.Point.coordinates._text}</coordinates>
 </Point></Placemark>`
+    stationsDataString += station;
+    if (pp.name._text.includes(fixedStation)) {
+        fixedStationDataString = station;
+    }
 });
 
 writeToFile('WallsPolygons', prePolygons + wallsPolygonsDataString + postMultiGeo)
@@ -124,6 +134,7 @@ writeToFile('WallsLines', preLines + wallsLinesDataString + postMultiGeo)
 writeToFile('Splays', preSplays + splaysLinesDataString + postMultiGeo)
 writeToFile('Centerline', preCenterline + centerlineLinesDataString + postMultiGeo)
 writeToFile('Stations', preStations + stationsDataString + postDoc)
+writeToFile('FixedStation', preFixedStation + fixedStationDataString + postDoc)
 
 createKmz();
 
