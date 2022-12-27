@@ -124,7 +124,7 @@ stationsArr.forEach(pp => {
 <coordinates>${pp.MultiGeometry.Point.coordinates._text}</coordinates>
 </Point></Placemark>`
     stationsDataString += station;
-    if (pp.name._text.includes(fixedStation)) {
+    if (pp.name._text.startsWith(fixedStation)) {
         fixedStationDataString = station;
     }
 });
